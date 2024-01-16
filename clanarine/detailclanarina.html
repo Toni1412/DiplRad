@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/styles.css" />
+  </head>
+  <script src="https://unpkg.com/jspdf-invoice-template@1.4.0/dist/index.js"></script>
+  <body>
+    <div class="container">
+      <div class="links-menu">
+        <div class="links-container">
+          <a href="../index.html" class="link">Pocetna stranica</a>
+          <a href="../clanovi/clanovi.html" class="link">Popis clanova</a>
+        </div>
+      </div>
+
+      <div class="main-page">
+        <div class="details">
+          <p id="OIB"></p>
+          <p id="opis"></p>
+          <p id="datum"></p>
+          <p id="placeno"></p>
+          <p id="pdf"></p>
+        </div>
+      </div>
+    </div>
+    <script>
+      // const jsPDFInvoiceTemplate = require("jspdf-invoice-template");
+      const searchParams = window.location.search;
+      let split = searchParams.split("=");
+      let OIB = split[1].split("&")[0];
+      let container = document.querySelector(
+        ".container .links-menu .links-container"
+      );
+      let pdfLink = document.getElementById("pdf");
+      let a = document.createElement("a");
+      let link = document.createTextNode("Povratak na korisnika");
+      a.appendChild(link);
+      a.href = `../clanovi/detailclan.html?OIB=${OIB}`;
+      a.classList.add("link");
+      container.appendChild(a);
+      let opisDorada = split[2].split("%");
+      let opisKonacan = "";
+      opisKonacan += opisDorada[0];
+      for (let i = 1; i < opisDorada.length; i++) {
+        opisKonacan += ` ${opisDorada[i].slice(2)}`;
+      }
+      let OIBPolje = document.getElementById("OIB");
+      let opisPolje = document.getElementById("opis");
+      let datum = document.getElementById("datum");
+      let placeno = document.getElementById("placeno");
+      let clanarina = api.testfetch(
+        `SELECT * FROM memberships WHERE OIB = ${OIB} and opis = '${opisKonacan}'`,
+        "all"
+      );
+      clanarina.then((val) => {
+        let redak = val.toString();
+        const parsed = redak.split(",");
+        OIBPolje.innerText = `OIB: ${OIB}`;
+        opisPolje.innerText = `Opis: ${opisKonacan}`;
+        datum.innerText = `Datum: ${parsed[2]}`;
+        placeno.innerText = `Placeno: ${parsed[3]}`;
+      });
+    </script>
+  </body>
+</html>

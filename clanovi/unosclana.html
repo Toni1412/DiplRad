@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../styles/styles.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="links-menu">
+        <div class="links-container">
+          <a href="../index.html" class="link">Povratak na pocetnu stranicu</a>
+          <a href="clanovi.html" class="link">Popis clanova</a>
+        </div>
+      </div>
+
+      <div class="main-page">
+        <div class="blue">
+          <form method="POST" id="form">
+            <label for="firstname">Ime:</label>
+            <input type="text" id="firstname" placeholder="Ime" /><br />
+
+            <label for="lastname">Prezime:</label>
+            <input type="text" id="lastname" placeholder="Prezime" /><br />
+
+            <label for="OIB">OIB:</label>
+            <input type="text" id="OIB" /><br />
+
+            <label for="email">email:</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="testemail@gmail.com"
+            /><br />
+
+            <label for="phone">Broj mobitela :</label>
+            <input type="tel" id="phone" placeholder="099-999-9999" /><br />
+
+            <input type="submit" value="Unesi novog clana" />
+
+            <p id="pout1"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script>
+      function formSubmit(event) {
+        event.preventDefault();
+        let ime = document.getElementById("firstname").value;
+        let prezime = document.getElementById("lastname").value;
+        let OIB = document.getElementById("OIB").value;
+        let phone = document.getElementById("phone").value;
+        let email = document.getElementById("email").value;
+        let query =
+          "INSERT INTO users (OIB,ime,prezime,brojMobitela,email) VALUES (?,?,?,?,?);";
+        const values = [OIB, ime, prezime, phone, email];
+        api.insertValues(query, values);
+      }
+      const form = document.getElementById("form");
+      form.addEventListener("submit", formSubmit);
+    </script>
+  </body>
+</html>

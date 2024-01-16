@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="links-menu">
+        <div class="links-container">
+          <a href="../index.html" class="link">Pocetna stranica</a>
+          <a href="unosclana.html" class="link">Unos novog clana</a>
+        </div>
+      </div>
+      <div class="main-page">
+        <div class="blue">
+          <div id="table"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      var redak = "";
+      let myTable = document.querySelector("#table");
+      let redoviTablice = [];
+      let paragraf = document.getElementById("popis");
+      let udruge = api.testfetch("SELECT * FROM users ORDER BY prezime", "all");
+      udruge.then((val) => {
+        redak = val.toString();
+        const parsed = redak.split(",");
+        let brojObjekata = parsed.length / 5;
+        for (let i = 0; i < brojObjekata; i++) {
+          let rv = {};
+          for (let j = 0; j < 5; j++) {
+            rv[j] = parsed[i * 5 + j];
+          }
+          redoviTablice[i] = rv;
+        }
+        drawTable(redoviTablice);
+      });
+
+      function drawTable(data) {
+        const headers = ["OIB", "Ime", "Prezime", "Mobitel", "email"];
+        const table = document.createElement("table");
+        const tr = document.createElement("tr");
+
+        headers.forEach((header) => {
+          let head = document.createElement("th");
+          let textNode = document.createTextNode(header);
+          head.appendChild(textNode);
+          tr.appendChild(head);
+        });
+
+        table.appendChild(tr);
+
+        data.forEach((osoba) => {
+          let row = document.createElement("tr");
+          Object.values(osoba).forEach((text) => {
+            let cell = document.createElement("td");
+            let textNode = document.createTextNode(text);
+            cell.appendChild(textNode);
+            row.appendChild(cell);
+          });
+          let OIB = osoba[0];
+          row.addEventListener("click", () => {
+            window.location.href = `detailclan.html?OIB=${OIB}`;
+          });
+          table.appendChild(row);
+        });
+
+        myTable.appendChild(table);
+      }
+    </script>
+  </body>
+</html>

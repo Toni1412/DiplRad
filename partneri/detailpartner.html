@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="links-menu">
+        <div class="links-container">
+          <a href="../index.html" class="link">Pocetna stranica</a>
+          <a href="partneri.html" class="link">Popis partnera</a>
+        </div>
+      </div>
+
+      <div class="main-page">
+        <div class="details">
+          <p id="OIB"></p>
+          <p id="naziv"></p>
+          <p id="adresa"></p>
+          <p id="pbr"></p>
+          <p id="grad"></p>
+          <div id="racuni"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const searchParams = window.location.search;
+      let container = document.querySelector(
+        ".container .links-menu .links-container"
+      );
+      let split = searchParams.split("=");
+      let OIB = split[1];
+      let OIBPolje = document.getElementById("OIB");
+      let naziv = document.getElementById("naziv");
+      let adresa = document.getElementById("adresa");
+      let postanskiBrooj = document.getElementById("pbr");
+      let grad = document.getElementById("grad");
+      let racuni = document.getElementById("racuni");
+      let a = document.createElement("a");
+      link = document.createTextNode("Izbrisi partnera");
+      a.appendChild(link);
+      a.href = `brisanjepartnera.html?OIB=${OIB}`;
+      a.classList.add("link");
+      container.appendChild(a);
+      let partner = api.testfetch(
+        `SELECT * FROM partners WHERE OIB = ${OIB}`,
+        "all"
+      );
+      partner.then((val) => {
+        let redak = val.toString();
+        const parsed = redak.split(",");
+        OIBPolje.innerText = `OIB : ${parsed[0]}`;
+        naziv.innerText = `Naziv partnera : ${parsed[1]}`;
+        adresa.innerText = `Adresa : ${parsed[2]}`;
+        postanskiBrooj.innerText = `Postanski broj : ${parsed[3]}`;
+        grad.innerText = `Grad : ${parsed[4]}`;
+        let a = document.createElement("a");
+        let link = document.createTextNode("Izdavanje novog racuna");
+        a.appendChild(link);
+        a.href = `../racuni/noviracun.html?OIB=${OIB}&naziv=${parsed[1]}`;
+        a.classList.add("link");
+        container.appendChild(a);
+
+        let dohvatRacuna = window.api.testfetch(
+          `SELECT * FROM invoice WHERE OIBpartner = ${OIB}`,
+          "all"
+        );
+        dohvatRacuna.then((val) => {
+          let redak = val.toString();
+          const parsed = redak.split(",");
+          let brojRacuna = parsed.length / 8;
+          for (let i = 0; i < brojRacuna; i++) {
+            let p = document.createElement("p");
+            let opis = parsed[i * 8 + 2];
+            p.classList.add("clanarine");
+            p.innerText = opis;
+            racuni.appendChild(p);
+            p.addEventListener("click", () => {
+              window.location.href = `../racuni/detailracun.html?opis=${opis}`;
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

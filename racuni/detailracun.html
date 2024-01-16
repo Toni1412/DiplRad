@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="links-menu">
+        <div class="links-container">
+          <a href="../index.html" class="link">Pocetna stranica</a>
+        </div>
+      </div>
+
+      <div class="main-page">
+        <div class="details">
+          <p id="opisRacuna"></p>
+          <p id="OIBudruga"></p>
+          <p id="OIBpartner"></p>
+          <p id="datumOtpreme"></p>
+          <p id="datumDospijeca"></p>
+          <p id="tipRacuna"></p>
+          <p id="brojRacuna"></p>
+          <p id="mjestoIzdavanja"></p>
+          <div id="table"></div>
+          <p id="ukupanIznos"></p>
+          <p>String za pretvaranje u html!</p>
+          <p id="redak"></p>
+          <button id="web_btn">Prikazi racun u browseru</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      const searchParams = window.location.search;
+      let container = document.querySelector(
+        ".container .links-menu .links-container"
+      );
+      let split = searchParams.split("=");
+      let opis = split[1].replaceAll("%20", " ");
+      let opisRacuna = document.getElementById("opisRacuna");
+      let OIBudruga = document.getElementById("OIBudruga");
+      let OIBpartner = document.getElementById("OIBpartner");
+      let datumOtpreme = document.getElementById("datumOtpreme");
+      let datumDospijeca = document.getElementById("datumDospijeca");
+      let tipRacuna = document.getElementById("tipRacuna");
+      let brojRacuna = document.getElementById("brojRacuna");
+      let mjestoIzdavanja = document.getElementById("mjestoIzdavanja");
+      let myTable = document.querySelector("#table");
+      let redoviTablice = [];
+      let ukupanIznosRacuna = 0;
+
+      let racun = api.testfetch(
+        `SELECT * FROM invoice WHERE opisRacuna = '${opis}'`,
+        "all"
+      );
+      racun.then((val) => {
+        let redak = val.toString();
+        document.getElementById("redak").innerText = redak;
+        const parsed = redak.split(",");
+        opisRacuna.innerText = `Opis racuna : ${parsed[2]}`;
+        OIBudruga.innerText = `OIB udruge : ${parsed[0]}`;
+        OIBpartner.innerText = `OIB partnera : ${parsed[1]}`;
+        datumOtpreme.innerText = `Datum otpreme : ${parsed[3]}`;
+        datumDospijeca.innerText = `Datum dospijeca : ${parsed[4]}`;
+        tipRacuna.innerText = `Tip racuna : ${parsed[5]}`;
+        brojRacuna.innerText = `Broj racuna : ${parsed[6]}`;
+        mjestoIzdavanja.innerText = `Mjesto izdavanja : ${parsed[7]}`;
+        let aPovratak = document.createElement("a");
+        let linkText = document.createTextNode("Povratak na partnera");
+        aPovratak.appendChild(linkText);
+        aPovratak.href = `../partneri/detailpartner.html?OIB=${parsed[1]}`;
+        aPovratak.classList.add("link");
+        container.appendChild(aPovratak);
+        let a = document.createElement("a");
+        let link = document.createTextNode("Dodavanje novog artikla");
+        a.appendChild(link);
+        a.href = `../racuni/noviartikl.html?opis=${parsed[2]}`;
+        a.classList.add("link");
+        container.appendChild(a);
+
+        let dohvatArtikla = window.api.testfetch(
+          `SELECT * FROM article WHERE opisRacuna = '${parsed[2]}'`,
+          "all"
+        );
+        dohvatArtikla.then((val) => {
+          let redak = val.toString();
+          const parsed = redak.split(",");
+          let brojObjekata = parsed.length / 4;
+          for (let i = 0; i < brojObjekata; i++) {
+            let rv = {};
+            for (let j = 0; j < 3; j++) {
+              rv[j] = parsed[i * 4 + j + 1];
+            }
+            redoviTablice[i] = rv;
+          }
+          drawTable(redoviTablice);
+        });
+      });
+
+      function drawTable(data) {
+        const headers = ["Artikl", "Iznos bez PDV-a", "PDV", "Iznos sa PDV-om"];
+        const table = document.createElement("table");
+        const tr = document.createElement("tr");
+
+        headers.forEach((header) => {
+          let head = document.createElement("th");
+          let textNode = document.createTextNode(header);
+          head.appendChild(textNode);
+          tr.appendChild(head);
+        });
+
+        table.appendChild(tr);
+
+        data.forEach((artikl) => {
+          let row = document.createElement("tr");
+          Object.values(artikl).forEach((text) => {
+            let cell = document.createElement("td");
+            let textNode = document.createTextNode(text);
+            cell.appendChild(textNode);
+            row.appendChild(cell);
+          });
+          let cell = document.createElement("td");
+          let pdv = 1 + artikl[2].slice(0, -1) / 100;
+          let iznosPDV = artikl[1] * pdv;
+          ukupanIznosRacuna += iznosPDV;
+          let textNode = document.createTextNode(iznosPDV);
+          cell.appendChild(textNode);
+          row.appendChild(cell);
+          table.appendChild(row);
+        });
+
+        myTable.appendChild(table);
+        document.getElementById(
+          "ukupanIznos"
+        ).innerText = `Ukupan iznos racuna : ${ukupanIznosRacuna} EUR`;
+      }
+    </script>
+  </body>
+</html>
